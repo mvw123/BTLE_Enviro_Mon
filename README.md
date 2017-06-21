@@ -1,5 +1,7 @@
 BTLE_Enviro_Mon
 ===============
+STATUS [Working]
+
 An arduino project which allows serial access to environmental data via bluetooth from a smartphone app.
 
 * Monitors: Temperature, Humidity, Atmospheric pressure
