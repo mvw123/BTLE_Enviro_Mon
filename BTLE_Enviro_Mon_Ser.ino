@@ -16,6 +16,7 @@
   MW- May need to reset downloader and pro mini before download due to a recurring bug.
   MW- use I2C scanner to check your I2C addresses if your not sure
   MW- LF and CR, ARE required for bolutek BLE module AT commands.  Not required for some other manufacturers modules. Therefore there can be incompatability between modules. 
+
  ****************************************************/
 
 #include <Arduino.h>
