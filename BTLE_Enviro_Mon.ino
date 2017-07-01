@@ -1,7 +1,19 @@
-// modified from various examples including ADAfruit, spark fun, and others
-// added OLED ascii driver instead of adafruit driver which uses too much memory.
-
 /*************************************************** 
+ Name: BTLE enviro Mon 
+ 
+ Description:
+  Using a modified Arduino pro mini, modified HM-10 clone, 
+  incorporating temperature/humidity and barometric pressure sensor. 
+ 
+ Usage:  
+  Connect to the device via Bluetooth serial or another arduino, 
+  serial environmental data is then auto sent before auto disconnect occurs. 
+  
+ Origin: 
+  Software modified from various examples including ADAfruit, spark fun, and others
+  added OLED ascii driver instead of adafruit driver which uses too much memory in the Atmel 328 device.
+ 
+ Details:
   SHT31 temperature and humidity sensor
   BMP280 temperature and barometric pressure sensor
   OLED 128x64 display (SPI) SSD1306
@@ -290,7 +302,7 @@ void initBluetooth(void){
   bleSerial.println("AT+RENEW");  //set back to defaults
   delay(1500);  
   bleSerialToHarwareSerial(); 
-  bleSerial.println("AT+NAMECC41-A");  //name
+  bleSerial.println("AT+NAMECC41-A");  //device name
   delay(500);  
   bleSerialToHarwareSerial();   
   //bleSerial.println("AT+ADVI0");      //Set advertising interval to 0 ( milliseconds) 
@@ -343,7 +355,7 @@ void getSensorData(void){
   sht_h = sht31.readHumidity();
 
   //Soft reset
-  //sht31.reset()
+  //sht31.reset() //maybe include this in the setup routine!
   //Heater to evaporate condensation
   //sht31.heater(true)
   //sht31.heater(false)
@@ -411,39 +423,40 @@ void sendSensorDataToBluetooth(void){
     int printDelay=100; //due to print fails add delay
     
     bleSerial.println(" ");
+    bleSerial.println(" ");    
     bleSerial.println("Environment Monitor"); //top line
-    bleSerial.println(" ");
+    bleSerial.println("===================");
     delay(printDelay);
-    bleSerial.print("TEMP: "); bleSerial.print(sht_t); bleSerial.println(" ºC  (SHT31 ±0.3ºC)");    //Write TEMPERATURE
+    bleSerial.print("TEMP: "); bleSerial.print(sht_t); bleSerial.println(" ºC (SHT31 ±0.3ºC)");    //Write TEMPERATURE
     delay(printDelay);
-    bleSerial.print("HUMI:  "); bleSerial.print(sht_h); bleSerial.println(" %RH  (SHT31 ±2%)");  //Write HUMIDITY
+    bleSerial.print("HUMI: "); bleSerial.print(sht_h); bleSerial.println(" %RH (SHT31 ±2%)");  //Write HUMIDITY
     delay(printDelay);
-    bleSerial.print("DEWP: "); bleSerial.print(myDewPt); bleSerial.println(" ºC  (CALC'D ±0.35ºC)");  //Write Dew Point  
+    bleSerial.print("DEWP: "); bleSerial.print(myDewPt); bleSerial.println(" ºC (CALC'D ±0.35ºC)");  //Write Dew Point  
     delay(printDelay);
-    //BMP280 temp is not very accurate
-    //bleSerial.print("TEMP:  "); bleSerial.print(BMP280_Temperature); bleSerial.println(" ºC  (BMP280 ±1.0ºC)");    //Write TEMPERATURE 
+    //BMP280 temperature is not very accurate 
+    //bleSerial.print("TEMP: "); bleSerial.print(BMP280_Temperature); bleSerial.println(" ºC (BMP280 ±1.0ºC)");    //Write TEMPERATURE 
     //delay(printDelay);
-    bleSerial.print("PRES:  "); bleSerial.print(BMP280_Pressure); bleSerial.println(" hPa  (BMP280 ±1.0hPa)");   //Write BAROMETRIC PRESSURE BMP280
+    bleSerial.print("PRES: "); bleSerial.print(BMP280_Pressure); bleSerial.println(" hPa (BMP280 ±1.0hPa)");   //Write BAROMETRIC PRESSURE BMP280
     delay(printDelay);
-    bleSerial.print("ALTI:    "); bleSerial.print(BMP280_Altitude); bleSerial.println(" m  (UNCAL)");   //Write ELEVATION from BAROMETRIC PRESSURE BMP280
+    bleSerial.print("ALTI: "); bleSerial.print(BMP280_Altitude); bleSerial.println(" m (UNCAL)");   //Write ELEVATION from BAROMETRIC PRESSURE BMP280
     delay(printDelay);
-    bleSerial.print("SEACAL: "); bleSerial.print(seaLevelPressure); bleSerial.println(" mbar  (UNCAL)");   //Write manually set sea level cal pressure for altitude calc 
+    bleSerial.print("SEACAL: "); bleSerial.print(seaLevelPressure); bleSerial.println(" mbar (UNCAL)");   //Write manually set sea level cal pressure for altitude calc 
     //bleSerial.println("ENTROPY: (RISING)"); 
     delay(printDelay);
     if (vBatt > 4.2) {
-          bleSerial.print("*****BATTERY OVERVOLTAGE:***** ");  bleSerial.print(vBatt);    bleSerial.println("V");
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY OVERVOLTAGE***** ");  
     }
     else if ((vBatt >= 2.8) && (vBatt <= 4.2)) {
-          bleSerial.print("VBATT: ");  bleSerial.print(vBatt);    bleSerial.println("V");
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); 
     }
     else if (vBatt < 2.8) {
-              bleSerial.print("*****BATTERY LOW:***** ");  bleSerial.print(vBatt);    bleSerial.println("V");
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY LOW***** ");  
     }
     else {
-              bleSerial.print("*****BATTERY READING ERROR:***** ");  bleSerial.print(vBatt);    bleSerial.println("V");
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY READING ERROR***** "); 
     }
     delay(printDelay);
-    bleSerial.println("Note: hPa = mbar\n");
+    bleSerial.println("Note hPa = mbar\n");
     delay(printDelay);
 
   }
@@ -454,7 +467,7 @@ void sendSensorDataToBluetooth(void){
 void VCC_Voltage(void){
   // read the analog in value:
   inputADCValue = analogRead(analogInPin);
-  vBattDivider = float((inputADCValue * internalAREF)/1024); //ADC = (VIN*1024) / VREF.  VIN=(ADC*VREF)/1024. if we divide the input voltage by two then we multiply result by 2
+  vBattDivider = float((inputADCValue * internalAREF)/1023); //ADC = (VIN*1023) / VREF.  VIN=(ADC*VREF)/1023. if we divide the input voltage by two then we multiply result by 2
   vBatt = ((powerMonitorR1 + powerMonitorR2) * vBattDivider) / powerMonitorR2;
   //print the results to the serial monitor:
   //Serial.print("ADC value = ");  Serial.print(inputADCValue);
