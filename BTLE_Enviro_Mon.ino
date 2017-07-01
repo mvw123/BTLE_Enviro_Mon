@@ -302,7 +302,7 @@ void initBluetooth(void){
   bleSerial.println("AT+RENEW");  //set back to defaults
   delay(1500);  
   bleSerialToHarwareSerial(); 
-  bleSerial.println("AT+NAMECC41-A");  //device name
+  bleSerial.println("AT+NAMEEnviroMon");  //device name
   delay(500);  
   bleSerialToHarwareSerial();   
   //bleSerial.println("AT+ADVI0");      //Set advertising interval to 0 ( milliseconds) 
