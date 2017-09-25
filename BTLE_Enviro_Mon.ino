@@ -370,8 +370,16 @@ void getSensorData(void){
   it will not be able to calculate the altitude accurately
   Barometric pressure at sea level changes daily based on the weather!
   */
-  seaLevelPressure = 1013.25; //Sea level barometric pressure for calibration of altitude, should update this from an online resource 
+  seaLevelPressure = 1013.25; //Sea level barometric pressure for calibration of altitude, should update this from an online resource  
   BMP280_Altitude = bme.readAltitude(seaLevelPressure);
+  
+  // this is pointless to us since we would need to know height before using the sensor. and if we know height we don't need to calculate it
+  //calculated from height
+  //int calibratedSensorHeightAboveSeaLevel = 131; //metres
+  //formula from http://keisan.casio.com/exec/system/1224575267
+  //328p doesn't do double, so it will be a float.
+  //double seaLevelPressureFromCalibratedHeight = BMP280_Pressure * ( ( 1 - ((0.00065 * calibratedSensorHeightAboveSeaLevel) / (sht_t + (0.00065*calibratedSensorHeightAboveSeaLevel) + 273.15)) ) ^ -5.257 )
+  
 }
 
 /********************************************/
@@ -422,10 +430,10 @@ void sendSensorDataToBluetooth(void){
     
     int printDelay=100; //due to print fails add delay
     
-    bleSerial.println(" ");
-    bleSerial.println(" ");    
+    bleSerial.println();
+    //bleSerial.println(" ");    
     bleSerial.println("Environment Monitor"); //top line
-    bleSerial.println("===================");
+    bleSerial.println("===============");
     delay(printDelay);
     bleSerial.print("TEMP: "); bleSerial.print(sht_t); bleSerial.println(" ºC (SHT31 ±0.3ºC)");    //Write TEMPERATURE
     delay(printDelay);
@@ -441,19 +449,19 @@ void sendSensorDataToBluetooth(void){
     bleSerial.print("ALTI: "); bleSerial.print(BMP280_Altitude); bleSerial.println(" m (UNCAL)");   //Write ELEVATION from BAROMETRIC PRESSURE BMP280
     delay(printDelay);
     bleSerial.print("SEACAL: "); bleSerial.print(seaLevelPressure); bleSerial.println(" mbar (UNCAL)");   //Write manually set sea level cal pressure for altitude calc 
-    //bleSerial.println("ENTROPY: (RISING)"); 
-    delay(printDelay);
+    delay(printDelay);   
+
     if (vBatt > 4.2) {
-          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY OVERVOLTAGE***** ");  
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.println("**BATTERY OVERVOLTAGE**");  
     }
     else if ((vBatt >= 2.8) && (vBatt <= 4.2)) {
           bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); 
     }
     else if (vBatt < 2.8) {
-          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY LOW***** ");  
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.println("**BATTERY LOW**");  
     }
     else {
-          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.print("*****BATTERY READING ERROR***** "); 
+          bleSerial.print("VBATT: "); bleSerial.print(vBatt); bleSerial.println(" V"); bleSerial.println("**BATTERY READ ERROR**"); 
     }
     delay(printDelay);
     bleSerial.println("Note hPa = mbar\n");
@@ -564,6 +572,10 @@ void debugPrintEnviroData(void){
   Serial.println("  [ +/-1.7hPa (@-20 to 0C), +/-1.0hPa (0-65C) ]");
 
   Serial.print(F("BMP280: Approx altitude = "));  //should be 127m + 4m = 131 metres approx for MVW upstairs home. 
+  // confirmed via daftlogic website  https://www.daftlogic.com/sandbox-google-maps-find-altitude.htm
+  // and via my Altitude iphone app https://itunes.apple.com/gb/app/my-altitude/id465262694?mt=8
+  // upstairs will be approx +4 metres from ground level
+  
   //Serial.print(bme.readAltitude(1013.25)); // millibars, this should be adjusted to your local forcast
   Serial.print(BMP280_Altitude); // this should be adjusted to your local forcast  
   Serial.println(" m");
