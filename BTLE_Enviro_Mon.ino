@@ -55,6 +55,12 @@ SoftwareSerial bleSerial(12, 7); // RX, TX
 #define BLE_STATE_PIN   2
 const int wakeUpPin = BLE_STATE_PIN;
 
+// if used, the following will be activated
+// not implemented yet
+//#define SHT31 true 
+//#define BMP280 true
+//#define OLED_SSD1306 true
+
 //OLED Hardware SPI pins
 
 // Hardware SPI, sparkfun pinout , must indicate use of hardware SPI later
@@ -64,6 +70,7 @@ const int wakeUpPin = BLE_STATE_PIN;
 //#define OLED_DATA 11  //MOSI not defined here for hardware SPI 
 //#define OLED_MISO 12 //not used 
 //#define OLED_CLK  13 //SPI CLK not defined here for hardware SPI
+
 /*
 #define BMP_SCK 13
 #define BMP_MISO 12
